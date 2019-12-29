@@ -1,18 +1,19 @@
-/// <reference path="../node_modules/phaser/types/phaser.d.ts"/>
-
 // const Phaser = require('phaser');
 // import Phaser from 'phaser';
-import {Player} from './player.ts'; 
-import {ReadyGoText, ReadyState} from './readygo.ts'; 
-import {Bullet} from './bullet.ts';
-import * as global from './consts.ts';
-import axios from 'axios';
+import {Player} from './player'
+
+import {ReadyGoText, ReadyState} from './readygo'
+
+import {Bullet} from './bullet'
+
+import * as global from './consts'
+import axios from 'axios'
 // import Phaser from 'phaser';
 
 
 import * as zlib from 'browserify-zlib';
 import {XorShift32} from './XorShift32.js';
-import * as mathutil from './mathutil.ts';
+import * as mathutil from './mathutil';
 
 
 //
@@ -26,7 +27,6 @@ import * as mathutil from './mathutil.ts';
 
 // var playerSprite = null;
 
-let frameNumber:number = 0;
 var bulletGenInterval = 15;
 
 // const wall = require('./assets/wall.png');
@@ -51,7 +51,7 @@ enum GameStep {
     die 
 }
 
-export  class GameScene extends Phaser.Scene {
+export class GameScene extends Phaser.Scene {
     step: GameStep = GameStep.playing; 
     readyText!: ReadyGoText;
     playerSprite!: Player;
@@ -63,12 +63,14 @@ export  class GameScene extends Phaser.Scene {
     circleImage! : Phaser.GameObjects.Image;
     gameRecords : any = {};
     randomObject : any = new XorShift32(); 
+    frameNumber : number = 0;
 
     userId: string = 'emptyid';
     userName: string = 'emptyname';
 
     public constructor(some:string) { 
         super(some); // game, 0, 0, arrow);
+        console.log("gamescene cstr");
         var config = {
             type: Phaser.AUTO,
             width: global.WIDTH,
@@ -121,13 +123,24 @@ export  class GameScene extends Phaser.Scene {
         this.circleImage.y = global.HEIGHT / 2;
         this.timeDisplay = this.add.bitmapText(global.WIDTH/2, 30, 'carrier_command', '00:00');
         this.timeDisplay.setCenterAlign();
-        this.timeDisplay.setOrigin(0.5);
+        this.timeDisplay.setOrigin(0.5); 
+
         let s : Player = new Player(this, 'player'); // this.add.image(0, 0, 'tail');
         s.scaleX = 0.2;
         s.scaleY = 0.2;
         s.x = global.WIDTH / 2;
         s.y = global.HEIGHT / 2;
         this.playerSprite = s;
+        const buffer1 = Buffer.from('eJztmstKAzEUht8l69m4KnRtn8CluPNWkFq0xUWZd1ek1LHamSSTy3dODmTx8Rfa5OTP7acHd7NaXbvlYrHo3Hqz3e/e3fL20Hdqm9tv3fLK4AzUNPe2fnreHUc3h+9fPzZf2GUQDan4y0mA/rSLnXt5ePyzmBrWDPXj92ncwZQh/GyOjGuLRCAXkOa9cTemHvvwqmaSWkk6Tz3eCp8zWtafcRnO+LA2sTFxwCPNbKkqrPpnggG9MoSgpTCTSMq1gBrReFo0wwwIyGVMCVVahtpv/YTSpYZe1uS+NeLKqNQP3UMP7kmPNsR9SJk2tiFKOHdS+xyRuMradkyiS+EJbPE93vNnqwSmwJDXRIZI45rLpCySLlGmRWqGiTDvV58aYajFCzvZCP1MOibCy88HoPfqsAdntRBvtLCzfyLGj7HWzpxtlkxEa1j62HP/z8ZE2NxBoPZOJVuiMaIoZjmBzpHOumcQGDAJSmRyISzaY8xyzsASYe6WHR+9UACRnhLtrEk+egKxZ/zZA+aHdiNtUnFJmmasG59Fp4hBwcys7R2yXcMNDkhhFSoBEScnV/VfoOdLs4q1WgZ+lpM6My09lgyZ79R6Ad4UIKY0CSUZG0thRCZqolDRMObBO1ld+iI2JIQbpnlrw0adJo9wMLQ1aVkY0qK3IqGe1VWogpjDmQAqpxDFE/qQDBye0ZZIhaoMPk3/Ls1/kplPWZe7/hONTIEB', 'base64');
+        
+        zlib.unzip(buffer1, (err, buffer) => {
+            if (!err) {
+                console.log("원본: ", buffer.toString());
+                // this.playerSprite.recoredInput = JSON.parse(buffer.toString());
+            } else {
+                // handle error
+            }
+        });
         this.createBullet();
 
         this.readyText = new ReadyGoText(this); 
@@ -154,11 +167,14 @@ export  class GameScene extends Phaser.Scene {
             boundaryRadius: {value: global.HEIGHT / 3, yoyo: true, duration:5000, ease: 'Quad.easeInOut' },
             repeat: -1
         });
-        this.boundaryTween.pause();
-
+        this.boundaryTween.pause(); 
     }
     public create() {
         console.log("phaser: create()");
+        this.bulletSprites = [];
+        this.boundaryRadius = global.HEIGHT / 2 - 50;
+        this.step = GameStep.playing;
+        this.frameNumber = 0;
         this.initGame(); 
         // bmpText.inputEnabled = true; 
         // this.playerSprite = this.add.image(0, 0, 'player');
@@ -167,9 +183,9 @@ export  class GameScene extends Phaser.Scene {
         // this.playerSprite.y = 200;
         // this.playerSprite.x = 200;
     }
+
     // circle : any;
     public update() {
-        // console.log(this.userId, this.userName);
         var circle = new Phaser.Geom.Circle(global.WIDTH / 2, global.HEIGHT / 2, this.boundaryRadius);
         this.boundary.clear();
         this.boundary.lineStyle(4, 0xff0000);
@@ -196,6 +212,7 @@ export  class GameScene extends Phaser.Scene {
                     this.playerSprite.live = false;
                 }
 
+                var thiz = this;
                 if(this.playerSprite.live == false) { 
                     const input = JSON.stringify(this.gameRecords);
                     zlib.deflate(input, (err, buffer) => {
@@ -207,10 +224,10 @@ export  class GameScene extends Phaser.Scene {
                             console.log(userEntity);
                             this.step = GameStep.die;
                             var thiz = this; 
-                            var base_url = global.APIURL + "/jdodge/service?cmd=addRank&name=kso&score=" + frameNumber;
                             var base_url = global.APIURL + "/jdodge/service";
                             // var base_url = "https://api.ipify.org?format=json";
 
+                            
                                                 const buffer1 = Buffer.from(rec, 'base64');
                                                 zlib.unzip(buffer1, (err, buffer) => {
                                                     if (!err) {
@@ -223,12 +240,11 @@ export  class GameScene extends Phaser.Scene {
 
                             axios.defaults.withCredentials = false;
                             axios.post(base_url, {
-                                params: {
                                     cmd: "addRank",
                                     id: this.userId,
-                                    score: frameNumber,
+                                    score: thiz.frameNumber,
                                     replay_data: rec,
-                                }}
+                                }
 
                             ).then( response => { 
                             } ) // SUCCESS
@@ -260,9 +276,9 @@ export  class GameScene extends Phaser.Scene {
     }
 
     public generator = ()=> {
-        frameNumber++;
-        let remain = Math.floor((frameNumber % 60) / 60.0 * 100.0);
-        let seconds = Math.floor(frameNumber/60.0);
+        this.frameNumber++;
+        let remain = Math.floor((this.frameNumber % 60) / 60.0 * 100.0);
+        let seconds = Math.floor(this.frameNumber/60.0);
         let remainStr = '';
         let secondsStr = '';
         if(remain < 10) {
@@ -277,10 +293,10 @@ export  class GameScene extends Phaser.Scene {
         }
 
         this.timeDisplay.setText(secondsStr + ':' + remainStr);
-        if(frameNumber == 500) {
+        if(this.frameNumber == 500) {
             // this.scene.restart();
         }
-        if(frameNumber % bulletGenInterval == 5) {
+        if(this.frameNumber % bulletGenInterval == 5) {
             this.createBullet();
         }
     }

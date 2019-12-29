@@ -66,7 +66,7 @@ module.exports = {
         }, ['excluded_bundle_name.js']),
     ],
     resolve: {
-        extensions: ['.js', '.vue', '.json', 'ts', 'tsx'],
+        extensions: ['.js', '.vue', '.json', '.ts', '.tsx'],
         alias: {
             'vue$': 'vue/dist/vue.esm.js',
             '@': path.resolve(__dirname, 'src/')

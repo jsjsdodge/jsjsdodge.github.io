@@ -1,4 +1,3 @@
-
 <template>
     <div id="app"> 
         <VueMenu />
@@ -10,12 +9,16 @@
                 </b-col>
                 <b-col cols="2"> 
                     <b-table striped hover
-                        id="my-table"
-                        :items="records"
-                        :per-page="perPage"
-                        :current-page="currentPage"
-                        small
-                        ></b-table>
+                             id="my-table"
+                             :items="records"
+                             :per-page="perPage"
+                             :current-page="currentPage"
+                             small
+                             >
+                             <template v-slot:cell(replay_data)="data">
+                                 <button v-on:click="viewReplay(data.value)">VIEW REPLAY</button>
+                             </template>
+                    </b-table>
                     <b-pagination
                         v-model="currentPage"
                         :total-rows="rows"
@@ -114,6 +117,10 @@ export default {
 
             };
             updater();
+        },
+        viewReplay: function(data) {
+            console.log("view replay!!", data);
+            gameScene.scene.restart();
         }
     }
 }
