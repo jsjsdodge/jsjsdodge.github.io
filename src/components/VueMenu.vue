@@ -2,7 +2,7 @@
 
 <div>
     <b-navbar toggleable="lg" type="dark" variant="info">
-        <b-navbar-brand href="#">JDODGE</b-navbar-brand>
+        <b-navbar-brand href="#">JDODGE </b-navbar-brand>
 
         <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
@@ -11,7 +11,7 @@
                 <b-nav-item href="#">Link</b-nav-item>
 
                 <b-nav-item href="#" disabled>Disabled</b-nav-item>
-                <b-nav-item href="#"><button>test</button></b-nav-item>
+                <b-nav-item href="#"><button v-on:click="testButton">test</button></b-nav-item>
             </b-navbar-nav>
             <b-navbar-nav class="ml-auto">
                 <b-nav-form>
@@ -56,6 +56,10 @@
 </template>
 <script>
 import GoogleLogin from 'vue-google-login';
+import * as global from '../consts.ts';
+import axios from 'axios';
+import Vue from 'vue'
+import { EventBus } from "@/event-bus";
 export default {
     components: {
         GoogleLogin, 
@@ -79,6 +83,7 @@ export default {
             console.log({ e });
         },
         onSuccess(googleUser) {
+            console.log("onSuccess Login");
             // this.loggedIn = true;
             var t = googleUser.getBasicProfile();
             // this.username = t.getName();
@@ -89,7 +94,16 @@ export default {
             sessionStorage.setItem('jdodge_auth',JSON.stringify(myUserEntity)); 
             this.username = t.getName();
             this.userid = t.getId();
+            EventBus.$emit("userinfo", myUserEntity);
 
+            var base_url = global.APIURL + "/jdodge/service?cmd=login&id=" + this.userid + "&name=" + this.username;
+            // var base_url = "https://api.ipify.org?format=json";
+            axios.get(base_url)
+                .then( response => { 
+                    // var json = JSON.parse(response.data);
+                    console.log(response); 
+                } ) // SUCCESS
+                .catch( response => { console.log(response); } ); // ERROR 
             console.log(t.getName()); 
             // // This only gets the user information: id, name, imageUrl and email
             // console.log(googleUser.getBasicProfile());
@@ -99,23 +113,56 @@ export default {
         },
         onLogout() {
             console.log("logout: ");
-            sessionStorage.clear();
-            this.username = "";
-            this.userid = "";
         },
         onLogoutFail(err) {
             console.log("onf", err);
         },
-    },
-    mounted() {
-        if(sessionStorage.getItem('jdodge_auth') == null){
-        } else {
-            var userEntity = {};
-            userEntity = JSON.parse(sessionStorage.getItem('jdodge_auth'));
-            this.username = userEntity.Name;
-            this.userid = userEntity.Id;
+        testButton() {
         }
     },
+    mounted() {
+        // Vue.GoogleUser.then(auth2 => {
+        //     console.log(auth2);
+        //     // console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", auth2.isSignedIn.get());
+        // }); 
+
+    },
+    beforeCreate() {
+        console.log("before create");
+        var thiz = this;
+        Vue.GoogleAuth.then(auth2 => {
+            // console.log(auth2.getBasicProfile());
+            console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", auth2.isSignedIn.get());
+            if(auth2.isSignedIn.get() == false) {
+                // auth2.signIn();
+            } else {
+                var t = sessionStorage.getItem('jdodge_auth');
+                var t2 = JSON.parse(t);
+                if(t == null){
+                    console.log("a");
+                    auth2.signOut();
+                } else {
+                    thiz.username = t2.Name;
+                    thiz.userid = t2.Id;
+                    EventBus.$emit("userinfo", t2);
+                    console.log("b");
+                }
+            }
+            auth2.isSignedIn.listen(function(abc) {
+                console.log("login is changed => ", abc);
+                if(abc == false) {
+                    sessionStorage.clear();
+                    // var myUserEntity = {};
+                    // myUserEntity.Id = "";
+                    // myUserEntity.Name = "";
+                    thiz.username = "";
+                    thiz.userid = "";
+                    EventBus.$emit("userinfo", {Id:this.userid, Name: this.username});
+                }
+            }); 
+            
+        }); 
+    }
 };
 </script>
 

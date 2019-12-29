@@ -1,29 +1,21 @@
 {
     "compilerOptions": {
         "target": "es5",
-        "strict": true,
+        "strict": false,
         "sourceMap": true,
         "module": "es2015",
         "moduleResolution": "node",
         "allowSyntheticDefaultImports": true,
         "experimentalDecorators": true,
         "allowJs": false, 
+        "typeRoots": ["@types", "node_modules/@types"],
         "noImplicitAny": false
-
     },
+    "typeRoots": ["@types", "node_modules/@types", "node_modules/@types/node"],
     "include":[
         "src/*"
     ],
     "exclude": [
         "node_modules"
-    ],
-    
-    "typeRoots": [
-        "./node_modules/@types",
-        "./node_modules/phaser/types"
-    ],
-    "types": [
-        "Phaser",
-        "vuetify"
     ]
 }

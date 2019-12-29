@@ -44,8 +44,12 @@
 
 
 import VueMenu from "./VueMenu.vue";
-import { GameScene, EmptyScene } from "../Ksoogame.ts";
+import {GameScene, EmptyScene } from "../Ksoogame.ts";
 import axios from 'axios';
+
+import { EventBus } from "@/event-bus";
+
+var gameScene = null;
 
 export default {
     components: {
@@ -68,12 +72,18 @@ export default {
                 {some: "abcs3"},
             ],
             records: [{"name":"han", "score":123}],
-            ksoo: 'ksoo',
+            ksoo: 'kso1233123o',
             perPage: 10,
             currentPage: 1,
         }
     },
     created() {
+        EventBus.$on("userinfo", userinfo => {
+            console.log("ui: ", userinfo);
+            gameScene.userId = userinfo.Id;
+            gameScene.userName = userinfo.Name;
+            // this.receivedClickCount = clickedCount;
+        });
     },
     computed: {
         rows() {
@@ -81,11 +91,9 @@ export default {
         }
     },
     mounted () {
-        new EmptyScene('Game'); 
+        // new EmptyScene('Game'); 
+        gameScene = new GameScene('tt'); 
         this.updateRecords();
-        // let canvas = document.querySelector("canvas");
-        // canvas.style.width = "100%";
-        // canvas.style.height = "100%";﻿
     },
     methods:
     {
@@ -93,9 +101,9 @@ export default {
             var thiz = this;
             thiz.records = [{"name":"han", "score":124443}];
             var updater = function() {
-                var base_url = "https://api.emalron.com:8443/jdodge/service?cmd=showAll";
+                var base_url = "https://api.emalron.com:8443/jdodge/service?cmd=showAllRanks";
                 // var base_url = "https://api.ipify.org?format=json";
-                axios.get(base_url)
+                axios.post(base_url)
                     .then( response => { 
                         // var json = JSON.parse(response.data);
                         // console.log(json); 

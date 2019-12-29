@@ -30,10 +30,8 @@ module.exports = {
                     esModule: false
                 },
             },
-            { test: /\.tsx?$/, loader: "ts-loader",
-
+            { test: /\.tsx?$/, loader: "ts-loader", 
                 options: {
-                    //appendTsSuffixTo: [/\.vue$/]
                 }
             },
             {
@@ -70,7 +68,8 @@ module.exports = {
     resolve: {
         extensions: ['.js', '.vue', '.json', 'ts', 'tsx'],
         alias: {
-            'vue$': 'vue/dist/vue.esm.js'
+            'vue$': 'vue/dist/vue.esm.js',
+            '@': path.resolve(__dirname, 'src/')
         }
     },
 };

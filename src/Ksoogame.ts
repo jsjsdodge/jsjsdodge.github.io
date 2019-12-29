@@ -4,21 +4,22 @@
 // import Phaser from 'phaser';
 import {Player} from './player.ts'; 
 import {ReadyGoText, ReadyState} from './readygo.ts'; 
+import {Bullet} from './bullet.ts';
 import * as global from './consts.ts';
-
+import axios from 'axios';
 // import Phaser from 'phaser';
 
 
+import * as zlib from 'browserify-zlib';
 import {XorShift32} from './XorShift32.js';
+import * as mathutil from './mathutil.ts';
 
 
-let rng1 : XorShift32 = new XorShift32();
-rng1.seed(333); // , 2);
 //
 
-for(var i=0; i<100; i++) {
-    console.log(rng1.randint());
-}
+// for(var i=0; i<100; i++) {
+//     console.log(rng1.randfloat());
+// }
 //
 //
 
@@ -39,152 +40,10 @@ var bulletGenInterval = 15;
 
 // export const haha:number = 3;
 
-function DIST(x:number, y:number, x2:number, y2:number): number {
-    return Math.sqrt( (x2 - x) * (x2 - x) + (y2 - y) * (y2 - y) );
-}
-
-function getRandomArbitrary(min, max) {
-    return Math.random() * (max - min) + min;
-}
 
 
-class Bullet extends Phaser.GameObjects.Image {
-    target!: Player;
-    dir!: Phaser.GameObjects.Image;
-    deltaAngle: number = 0.0;
-    currentFrame : number = 0;
-    delayFrame : number = 160;
-    scene: GameScene;
-    public custom: any;
-    startAngle : number = 0.0;
 
-    public constructor(scene:GameScene, radius: number, randomObject : any) {
-        super(scene, 0, 0, '');
-        this.scene = scene;
-        var newSpeed = 2 + Math.random() * 4;
 
-        if(Math.random() >= 0.95) {
-            // fast
-            newSpeed = 4 + Math.random() * 2;
-            this.setTexture('bullet_red');
-        } else {
-            // slow 
-            newSpeed = 2 + Math.random() * 1;
-            this.setTexture('wall');
-        }
-        
-
-        this.deltaAngle = getRandomArbitrary(0.005, 0.020);
-        this.custom = {};
-        this.custom.speed = newSpeed;
-
-        scene.add.existing(this);
-        this.dir = scene.add.image(0, 0, 'wall');
-        this.dir.scale = 0.1;
-
-        this.startAngle = Math.random() * Math.PI * 2;
-        var centerY = global.HEIGHT / 2;
-        var centerX = global.WIDTH / 2;
-        var randomY = Math.sin(this.startAngle) * radius;
-        var randomX = Math.cos(this.startAngle) * radius;
-        this.y = centerY + randomY;
-        this.x = centerX + randomX;
-        this.custom.aim = true;
-        // super(scene, 0,);
-    }
-    public setTarget(player: Player) {
-        this.target = player;
-        var dx = this.target.x - this.x;
-        var dy = this.target.y - this.y;
-        this.custom.angle = Math.atan2(dy, dx);
-    }
-    public update() {
-        this.currentFrame++;
-        if(this.delayFrame <= this.currentFrame) {
-            var b = this;
-            var yDiff = (b.y - this.target.y);
-            yDiff *= yDiff;
-
-            var xDiff = (b.x - this.target.x);
-            xDiff *= xDiff; 
-            var distance = yDiff + xDiff; 
-            var dx = this.target.x - b.x;
-            var dy = this.target.y - b.y; 
-            if(distance < 70) {
-                console.log("near!");
-                this.target.live = false;
-            }
-            var dstAngle = Math.atan2(dy, dx); 
-            var diff = Math.atan2(Math.sin(dstAngle - b.custom.angle), Math.cos(dstAngle - b.custom.angle));
-            var deltaAngle = this.deltaAngle;
-            if(Math.abs(diff) > Math.PI / 2) {
-            } else {
-                if(diff >= 0) {
-                    b.custom.angle += deltaAngle;
-                } else {
-                    b.custom.angle -= deltaAngle;
-                }
-            }
-            if(DIST(b.x, b.y, global.WIDTH / 2, global.HEIGHT / 2) > global.WIDTH / 2 + 100) {
-                this.destroy(); 
-                this.dir.destroy();
-            } else {
-                b.setRotation(b.custom.angle);
-                b.x += b.custom.speed * Math.cos(b.custom.angle);
-                b.y += b.custom.speed * Math.sin(b.custom.angle);
-            }
-            this.dir.setRotation(dstAngle);
-            this.dir.x = b.x;
-            this.dir.y = b.y; 
-        } else {
-            var centerY = global.HEIGHT / 2;
-            var centerX = global.WIDTH / 2;
-            var randomY = Math.sin(this.startAngle) * this.scene.boundaryRadius;
-            var randomX = Math.cos(this.startAngle) * this.scene.boundaryRadius;
-            this.y = centerY + randomY;
-            this.x = centerX + randomX;
-        }
-
-    }
-
-}
-
-export class EmptyScene extends Phaser.Scene {
-    public constructor(some:string) { 
-        super(some); // game, 0, 0, arrow);
-        console.log("phaser: ctr2");
-        var config = {
-            type: Phaser.AUTO,
-            width: global.WIDTH,
-            height: global.HEIGHT,
-            fps: {
-                target: 60
-            },
-            scale: {
-                mode: Phaser.Scale.FIT,
-                autoCenter: Phaser.Scale.CENTER_BOTH
-            },
-            parent: 'phaser-example',
-            scene: this
-        };
-        var game = new Phaser.Game(config);
-
-    }
-    public create() {
-        console.log("phaser: create()");
-        var gs = new GameScene('tt');
-        var config = {
-            key: 'intro',
-            type: Phaser.AUTO,
-            width: global.WIDTH,
-            height: global.HEIGHT,
-            scene: gs
-        };
-        // this.scene.add('ksoo', new GameScene('tt'), true);
-        this.scene.add('ksoo1', new GameScene('tt'), true);
-        // this.scene.add('ksoo', config, true);
-    }
-}
 
 enum GameStep {
     before,
@@ -203,13 +62,28 @@ export  class GameScene extends Phaser.Scene {
     boundaryTween! : Phaser.Tweens.Tween;
     circleImage! : Phaser.GameObjects.Image;
     gameRecords : any = {};
-    randomObject : any = new XorShift32();
+    randomObject : any = new XorShift32(); 
 
+    userId: string = 'emptyid';
+    userName: string = 'emptyname';
 
     public constructor(some:string) { 
-        
-        
         super(some); // game, 0, 0, arrow);
+        var config = {
+            type: Phaser.AUTO,
+            width: global.WIDTH,
+            height: global.HEIGHT,
+            fps: {
+                target: 60
+            },
+            scale: {
+                mode: Phaser.Scale.FIT,
+                autoCenter: Phaser.Scale.CENTER_BOTH
+            },
+            parent: 'phaser-example',
+            scene: this
+        };
+        var game = new Phaser.Game(config);
         // console.log("phaser: ctr2");
         // var config = {
         //     type: Phaser.AUTO,
@@ -234,7 +108,11 @@ export  class GameScene extends Phaser.Scene {
     public initGame() {
         // this.scale.setZoom(0.8); // (0.8);
 
-        this.randomObject.seed(Math.floor(Math.random() % 10000));
+        var randomSeed = Math.floor(Math.random() % 10000);
+        randomSeed = 777;
+        this.randomObject.seed(randomSeed);
+        this.gameRecords["SEED"] = randomSeed;
+        this.gameRecords["inputs"] = [];
         this.boundary = this.add.graphics({ lineStyle: { width: 2, color: 0x00ff00 }, fillStyle: { color: 0xff0000 }});
 
 
@@ -278,8 +156,6 @@ export  class GameScene extends Phaser.Scene {
         });
         this.boundaryTween.pause();
 
-        this.gameRecords["SEED"] = 99;
-        this.gameRecords["inputs"] = [];
     }
     public create() {
         console.log("phaser: create()");
@@ -293,6 +169,7 @@ export  class GameScene extends Phaser.Scene {
     }
     // circle : any;
     public update() {
+        // console.log(this.userId, this.userName);
         var circle = new Phaser.Geom.Circle(global.WIDTH / 2, global.HEIGHT / 2, this.boundaryRadius);
         this.boundary.clear();
         this.boundary.lineStyle(4, 0xff0000);
@@ -315,22 +192,52 @@ export  class GameScene extends Phaser.Scene {
                     } 
                 }
                 this.playerSprite.update(this.gameRecords);
-                if(DIST(this.playerSprite.x, this.playerSprite.y, circle.x, circle.y) > this.boundaryRadius) {
+                if(mathutil.dist(this.playerSprite.x, this.playerSprite.y, circle.x, circle.y) > this.boundaryRadius) {
                     this.playerSprite.live = false;
                 }
 
-                if(this.playerSprite.live == false) {
-                    console.log(JSON.stringify(this.gameRecords));
-                    this.step = GameStep.die;
-                    var thiz = this;
-                    var xhr = new XMLHttpRequest();
-                    if(!xhr) {
-                        alert("can not create XHR instance");
-                        return false;
-                    } 
-                    var base_url = "https://jdodge-1203598482.ap-northeast-2.elb.amazonaws.com/jdodge/service?cmd=addRank&name=kso&score=" + frameNumber; 
-                    xhr.open('get', base_url);
-                    xhr.send(); 
+                if(this.playerSprite.live == false) { 
+                    const input = JSON.stringify(this.gameRecords);
+                    zlib.deflate(input, (err, buffer) => {
+                        if (!err) {
+                            console.log(buffer.toString('base64'));
+                            var rec = buffer.toString('base64');
+                            var userEntity = {};
+                            userEntity = JSON.parse(sessionStorage.getItem('jdodge_auth'));
+                            console.log(userEntity);
+                            this.step = GameStep.die;
+                            var thiz = this; 
+                            var base_url = global.APIURL + "/jdodge/service?cmd=addRank&name=kso&score=" + frameNumber;
+                            var base_url = global.APIURL + "/jdodge/service";
+                            // var base_url = "https://api.ipify.org?format=json";
+
+                                                const buffer1 = Buffer.from(rec, 'base64');
+                                                zlib.unzip(buffer1, (err, buffer) => {
+                                                    if (!err) {
+                                                        console.log("원본: ", buffer.toString());
+                                                    } else {
+                                                        // handle error
+                                                    }
+                                                });
+
+
+                            axios.defaults.withCredentials = false;
+                            axios.post(base_url, {
+                                params: {
+                                    cmd: "addRank",
+                                    id: this.userId,
+                                    score: frameNumber,
+                                    replay_data: rec,
+                                }}
+
+                            ).then( response => { 
+                            } ) // SUCCESS
+                                .catch( response => { console.log(response); } ); // ERROR
+                        } else {
+                            // handle error
+                        }
+                    });
+
                 }
                 // collisionDetect(); 
                 this.generator();
