@@ -24,22 +24,29 @@ export class Player extends Phaser.GameObjects.Image {
         this.recoredInput = ri;
     }
     public update(gameRecords:any) {
+        // for(let aa=0; aa<=10; aa++) {
+        // }
         // console.log("hh", this.recoredInput);
         if(this.recoredInput != null) {
             // console.log(this.frameNumber, ": " + this.recoredInput.inputs[this.frameNumber]);
-            var input = this.recoredInput.inputs[this.frameNumber];
-            if(input["left"]) {
-                this.x -= this.playerSpeed;
-            }
+            if(this.recoredInput.inputs.length > this.frameNumber) {
+                var input = this.recoredInput.inputs[this.frameNumber];
+                if(input["left"]) {
+                    this.x -= this.playerSpeed;
+                }
 
-            if(input["right"]) {
-                this.x += this.playerSpeed;
-            }
-            if(input["up"]) {
-                this.y -= this.playerSpeed;
-            }
-            if(input["down"]) {
-                this.y += this.playerSpeed;
+                if(input["right"]) {
+                    this.x += this.playerSpeed;
+                }
+                if(input["up"]) {
+                    this.y -= this.playerSpeed;
+                }
+                if(input["down"]) {
+                    this.y += this.playerSpeed;
+                }
+            } else {
+                // window.alert("exceed");
+                console.log(this.recoredInput.inputs.length, this.frameNumber);
             }
             // for(let i=0; i<this.recoredInput.inputs.length; i++) {
             // }

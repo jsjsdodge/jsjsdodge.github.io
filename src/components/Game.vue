@@ -49,7 +49,7 @@
 import VueMenu from "./VueMenu.vue";
 import {GameScene, EmptyScene } from "../Ksoogame.ts";
 import axios from 'axios';
-
+import * as zlib from 'browserify-zlib'; 
 import { EventBus } from "@/event-bus";
 
 var gameScene = null;
@@ -102,16 +102,24 @@ export default {
     {
         updateRecords: function() {
             var thiz = this;
-            thiz.records = [{"name":"han", "score":124443}];
+            thiz.records = [{"name":"han", "score":124443, "replay_data":"etc"}];
             var updater = function() {
-                var base_url = "https://api.emalron.com:8443/jdodge/service?cmd=showAllRanks";
+                var base_url = "https://api.emalron.com:8443/jdodge/service";
                 // var base_url = "https://api.ipify.org?format=json";
-                axios.post(base_url)
+                axios.post(base_url, {
+                    cmd: "showAllRanks",
+                }
+
+                )
                     .then( response => { 
                         // var json = JSON.parse(response.data);
-                        // console.log(json); 
+                        console.log(response.data.message); 
 
-                        thiz.records = response.data;
+                        if(response.data.result && response.data.result >= 0) {
+                            thiz.records = response.data.message;
+                        } else {
+                        }
+
                     } ) // SUCCESS
                     .catch( response => { console.log(response); } ); // ERROR
 
@@ -120,7 +128,20 @@ export default {
         },
         viewReplay: function(data) {
             console.log("view replay!!", data);
-            gameScene.scene.restart();
+            //1332 frames
+            const buffer1 = Buffer.from('eJztms1OGzEURt9l1tlUQq3EujxBl1V3/UOqKGpBXaB597KAkqSZMJOJfc+1j+TF0RECj33tzP3Cw/Dh6ur9cPnm4uLtu81wfXN7f/d7uPz4MG7CxvDjy9e7xylVwvvbR9hoNBPmnKX96/rb9+dfXoAdjrOP4fPPPzdPtbYaT/n7hQ+NLKP56fRslMqSsjruX/RR8zgf7rw96lguMZKWkeQa6fnFpBvXkKkJtGfvZ+WDtnv7bROthAIrG8QjIUQqX47lToS8noGdff0yPlbZsFoF7pdYB4GRXGopGhUmcP0hafV7cwZfmlxmJvwbhOCiMaiag8lyB3x8EGZIzTEW4v7Ksi/ERvZIua5oRQgimjagm75jERGDvS2icRDIEFaZGfDgIEys+bvNvV2MwBcESLJNmuGqV6xmMaTbAnaIQLlzPeauiC6lzGFgeShbPZj1v7VTqc6rhK4AFEBoNMzqnZ9mTf40DLGzBQZCgUHUGJMEiCIYSS2lMo1Me5mmykB6Y07nrupJCVFAa5RfrRfilYZZO82EEUVzIF11VwHDG9H1OFZIBwv/k+ALlnmS1dPq8kpLgcB4SfkslzLwEXItII05KUkP6uWTczKwWP6bLR0zNyENgHKjyonU9nDhEFtCQ2CTpVuDY8qv8WFIKoVuXPrLrDkkNu57wwasvJLl3hhx8Bao1ABq2lYYLGTrZY+MTGumCa8pUnuj0+mwbizXTpbophfL6njgwzs6zxCDM6DqaZFckE2iZBkQ/vSRLYFa1/y5EW0RiOnBYaQtREYjVkNgq63juzn4/wjvVtcjaRNKb6AYW2kmKxU4drVTS1kmMyciQcctoMZveQQCSI6bKQ3atmuKnvsOLxKQIWBExY7T/66H3Yv5g3tqQirgtFVeVMPAbEV3fpcYScsYstyMh1hwiXv/ZCouTiDWs5RlWa7JnOStByXAYXtUPYeLXx128dUBWV9uuEMzWJysQRKSejWdrnW3/2kTff6zYSsxRMFJno77xUnou+T5zOnfSjd+c0az7+R1kfa+35kRFt0B7ffEtXvYYzds9NvgzmTWP3d8b3AIP41/AdOlMlU=', 'base64');
+
+            zlib.unzip(buffer1, (err, buffer) => {
+                if (!err) {
+                    console.log("원본: ", buffer.toString());
+                    var obj = JSON.parse(buffer.toString());
+                    gameScene.scene.restart();
+                    gameScene.replayData = JSON.parse(buffer.toString());
+                    console.log("replay set~~");
+                } else {
+                    // handle error
+                }
+            });
         }
     }
 }

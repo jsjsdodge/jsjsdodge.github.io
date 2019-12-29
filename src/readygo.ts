@@ -25,18 +25,20 @@ export class ReadyGoText extends Phaser.GameObjects.Container {
         // this.readyText.setAlign('center');
         // this.readyText.setOrigin(0.5);
         let bmpText:Phaser.GameObjects.BitmapText = scene.add.bitmapText(global.WIDTH/2, global.HEIGHT/2, 'carrier_command','READY');
+        let discText:Phaser.GameObjects.BitmapText = scene.add.bitmapText(global.WIDTH/2, global.HEIGHT/2 + 125, 'carrier_command','Press enter key to start.');
         this.readyText = bmpText;
         bmpText.setOrigin(0.5);
-        // bmpText.setDisplayOrigin(0.5);
         bmpText.setCenterAlign();
+        discText.setOrigin(0.5);
+        discText.setCenterAlign();
         // bmpText.setFontSize(100);
         // bmpText.setCenterAlign();
-        this.add([this.readyText]);
+        this.add([this.readyText, discText]);
         // this.add([bmpText, bmpText2]);
 
         var thiz = this;
-        var tween = scene.tweens.add({
-            targets: bmpText,
+        scene.tweens.add({
+            targets: [bmpText],
             loop: 0,
             onUpdateScope: this,
             onUpdate: function() {
@@ -51,32 +53,41 @@ export class ReadyGoText extends Phaser.GameObjects.Container {
             fontSize: {value: 60, duration:1000, ease: 'Quad.easeInOut' },
             repeat: 0
         });
+        scene.tweens.add({
+            targets: [discText],
+            loop: 0,
+            loopDelay: 0,
+            fontSize: {value: 30, duration:1000, ease: 'Quad.easeInOut' },
+            repeat: 0
+        });
 
         var thiz = this;
         scene.input.keyboard.on('keydown', function (event) {
-            console.log('key dddown');
-            if(thiz.state == ReadyState._2) {
-                thiz.state = ReadyState._3;
-                thiz.scene.tweens.add({
-                    targets: thiz.readyText,
-                    loop: 0,
-                    onUpdateScope: thiz,
-                    onUpdate: function() {
-                    },
-                    onCompleteScope: thiz,
-                    onComplete: function() { 
-                        console.log(thiz);
-                        // global.topScene.scene.remove('ksoo');
-                        // thiz.scene.scene.remove('ksoo');
-                        thiz.state = ReadyState._4;
-                        // thiz.destroy(true);
-                    },
-                    onLoopParams: [],
-                    loopDelay: 0,
-                    fontSize: {value: 1, yoyo: false, duration:300, ease: 'Quad.easeInOut' },
-                    repeat: 0
-                });
-            } 
+            console.log('key dddown', event);
+            if(event.key == 'Enter') {
+                if(thiz.state == ReadyState._2) {
+                    thiz.state = ReadyState._3;
+                    thiz.scene.tweens.add({
+                        targets: [thiz.readyText, discText],
+                        loop: 0,
+                        onUpdateScope: thiz,
+                        onUpdate: function() {
+                        },
+                        onCompleteScope: thiz,
+                        onComplete: function() { 
+                            console.log(thiz);
+                            // global.topScene.scene.remove('ksoo');
+                            // thiz.scene.scene.remove('ksoo');
+                            thiz.state = ReadyState._4;
+                            // thiz.destroy(true);
+                        },
+                        onLoopParams: [],
+                        loopDelay: 0,
+                        fontSize: {value: 1, yoyo: false, duration:300, ease: 'Quad.easeInOut' },
+                        repeat: 0
+                    });
+                } 
+            }
         });
     }
     public isFinish() {

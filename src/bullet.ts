@@ -10,7 +10,7 @@ export class Bullet extends Phaser.GameObjects.Image {
     dir!: Phaser.GameObjects.Image;
     deltaAngle: number = 0.0;
     currentFrame : number = 0;
-    delayFrame : number = 160;
+    delayFrame : number = 320;
     scene: GameScene;
     public custom: any;
     startAngle : number = 0.0;
@@ -60,6 +60,7 @@ export class Bullet extends Phaser.GameObjects.Image {
     public update() {
         this.currentFrame++;
         if(this.delayFrame <= this.currentFrame) {
+            this.setScale(2.0); 
             var b = this;
             var yDiff = (b.y - this.target.y);
             yDiff *= yDiff;
@@ -101,7 +102,15 @@ export class Bullet extends Phaser.GameObjects.Image {
             var randomY = Math.sin(this.startAngle) * this.scene.boundaryRadius;
             var randomX = Math.cos(this.startAngle) * this.scene.boundaryRadius;
             this.y = centerY + randomY;
-            this.x = centerX + randomX;
+            this.x = centerX + randomX; 
+
+            if(this.currentFrame >= 160) {
+                if(this.currentFrame % 4 <= 1) {
+                    this.setScale(1.0);
+                } else {
+                    this.setScale(2.0); 
+                }
+            }
         }
 
     }
