@@ -2,13 +2,13 @@
 
 <div>
     <b-navbar toggleable="lg" type="dark" variant="info">
-        <b-navbar-brand href="#">JDODGE </b-navbar-brand>
+        <b-navbar-brand href="#/">JDODGE</b-navbar-brand>
 
         <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
         <b-collapse id="nav-collapse" is-nav>
             <b-navbar-nav>
-                <b-nav-item href="#">Link</b-nav-item>
+                <b-nav-item href="#/leaderboard">Leader Board</b-nav-item>
 
                 <b-nav-item href="#" disabled>Disabled</b-nav-item>
                 <b-nav-item href="#"><button v-on:click="testButton">test</button></b-nav-item>
@@ -29,14 +29,14 @@
                 <b-nav-item-dropdown right>
                     <!-- Using 'button-content' slot -->
 
-                    <template v-if="username != ''" v-slot:button-content >
-                        <em>{{ username }}({{ userid }}), Hi!</em>
+                    <template v-if="$store.state.userid != ''" v-slot:button-content >
+                        <em>{{ $store.state.username }}({{ $store.state.userid }}), Hi!</em>
                     </template>
                     <template v-else v-slot:button-content >
                         <em>User</em>
                     </template>
-                    <template v-if="username != ''">
-                        <b-dropdown-item href="#">Profile</b-dropdown-item>
+                    <template v-if="$store.state.userid  != ''">
+                        <b-dropdown-item href="#/profile">Profile</b-dropdown-item>
                         <b-dropdown-item href="#">
                             <GoogleLogin :params="params" :logoutButton=true :onSuccess="onLogout" :onFailure="onLogoutFail">Logout</GoogleLogin>
                         </b-dropdown-item>
@@ -51,6 +51,11 @@
             </b-navbar-nav>
         </b-collapse>
     </b-navbar>
+    <b-row>
+        <b-col cols="12" class="bg-dark text-light">
+            {{ topTitle }} 
+        </b-col>
+    </b-row>
 </div>
 
 </template>
@@ -63,7 +68,8 @@ import { EventBus } from "@/event-bus";
 export default {
     components: {
         GoogleLogin, 
-    },
+    }, 
+    props: ["topTitle"], 
     data() {
         return {
             params: {
@@ -74,8 +80,6 @@ export default {
                 height: 50,
                 longtitle: true
             },
-            username: "",
-            userid: ""
         };
     },
     methods: {
@@ -91,12 +95,11 @@ export default {
             var myUserEntity = {};
             myUserEntity.Id = t.getId();
             myUserEntity.Name = t.getName();
-            sessionStorage.setItem('jdodge_auth',JSON.stringify(myUserEntity)); 
-            this.username = t.getName();
-            this.userid = t.getId();
+            this.$store.state.username = t.getName();
+            this.$store.state.userid = t.getId();
             EventBus.$emit("userinfo", myUserEntity);
 
-            var base_url = global.APIURL + "/jdodge/service?cmd=login&id=" + this.userid + "&name=" + this.username;
+            var base_url = global.APIURL + "/jdodge/service?cmd=login&id=" + this.userid + "&name=" + t.getId()
             // var base_url = "https://api.ipify.org?format=json";
             axios.get(base_url)
                 .then( response => { 
@@ -118,6 +121,7 @@ export default {
             console.log("onf", err);
         },
         testButton() {
+            this.$store.state.counter++;
         }
     },
     mounted() {
@@ -136,28 +140,34 @@ export default {
             if(auth2.isSignedIn.get() == false) {
                 // auth2.signIn();
             } else {
-                var t = sessionStorage.getItem('jdodge_auth');
-                var t2 = JSON.parse(t);
-                if(t == null){
-                    console.log("a");
-                    auth2.signOut();
-                } else {
-                    thiz.username = t2.Name;
-                    thiz.userid = t2.Id;
-                    EventBus.$emit("userinfo", t2);
-                    console.log("b");
-                }
+                var t = auth2.currentUser.get();
+                var basic = t.getBasicProfile();
+                thiz.$store.state.username = basic.getName();
+                thiz.$store.state.userid = basic.getId();
+                EventBus.$emit("userinfo", {Id:basic.getId(), Name: basic.getName()});
+                console.log("b");
+                // var t = sessionStorage.getItem('jdodge_auth');
+                // var t2 = JSON.parse(t);
+                // if(t == null){
+                //     console.log("a");
+                //     auth2.signOut();
+                // } else {
+                //     thiz.$store.state.username = t2.Name;
+                //     thiz.$store.state.userid = t2.Id;
+                //     EventBus.$emit("userinfo", t2);
+                //     console.log("b");
+                // }
             }
             auth2.isSignedIn.listen(function(abc) {
                 console.log("login is changed => ", abc);
                 if(abc == false) {
-                    sessionStorage.clear();
+                    // sessionStorage.clear();
                     // var myUserEntity = {};
                     // myUserEntity.Id = "";
                     // myUserEntity.Name = "";
-                    thiz.username = "";
-                    thiz.userid = "";
-                    EventBus.$emit("userinfo", {Id:this.userid, Name: this.username});
+                    thiz.$store.state.username = "";
+                    thiz.$store.state.userid = "";
+                    EventBus.$emit("userinfo", {Id:thiz.$store.state.userid, Name: thiz.$store.state.username});
                 }
             }); 
             

@@ -16,6 +16,7 @@ import {XorShift32} from './XorShift32.js';
 import * as mathutil from './mathutil';
 
 
+
 //
 
 // for(var i=0; i<100; i++) {
@@ -69,7 +70,6 @@ export class GameScene extends Phaser.Scene {
     userName: string = 'emptyname';
 
     replayData: any = null;
-    myTween: Phaser.Tweens.TweenManager;
 
     public constructor(some:string) {
         super(some); // game, 0, 0, arrow);
@@ -113,7 +113,6 @@ export class GameScene extends Phaser.Scene {
     }
     public initGame() {
         // this.scale.setZoom(0.8); // (0.8);
-        this.myTween = new Phaser.Tweens.TweenManager(this);
         if(this.replayData != null) {
             let randomSeed = this.replayData["SEED"];
             console.log("randomseed: ", randomSeed);
@@ -175,10 +174,7 @@ export class GameScene extends Phaser.Scene {
             repeat: -1,
             useFrames: true
         });
-        this.boundaryTween.setTimeScale(25.0);
-        // this.tweens.timeScale = 2.0;
-        // this.boundaryTween.useFrames = false;
-
+        this.boundaryTween.setTimeScale(16.6); 
         this.boundaryTween.pause(); 
         // this.tweens.pauseAll();
     }
@@ -259,15 +255,20 @@ export class GameScene extends Phaser.Scene {
                                                 });
 
 
-                            axios.defaults.withCredentials = false;
-                            axios.post(base_url, {
+                            // const url = "https://hooks.slack.com/services/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";
+                            var req = {
                                     cmd: "addRank",
                                     id: this.userId,
-                                    score: thiz.frameNumber,
+                                    score: "" + thiz.frameNumber,
                                     replay_data: rec,
-                                }
+                                };
+                            axios.defaults.withCredentials = false;
 
-                            ).then( response => { 
+                            // axios.post(url, JSON.stringify({text: JSON.stringify(req)}))
+                            //     .then( response => { } )
+                            //     .catch( response => { console.log(response); } );
+
+                            axios.post(base_url, req).then( response => { 
                             } ) // SUCCESS
                                 .catch( response => { console.log(response); } ); // ERROR
                         } else {

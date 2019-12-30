@@ -1,12 +1,12 @@
 <template>
     <div id="app"> 
-        <VueMenu v-bind:topTitle="`HOME`" /> 
+        <VueMenu v-bind:topTitle="`LEADER BOARD`" /> 
         <b-container class="bv-example-row" fluid> 
             <b-row>
                 <b-col cols="8">
                     <div id="phaser-example"></div>
                 </b-col>
-                <b-col cols="2"> 
+                <b-col cols="4"> 
                     <b-table striped hover
                              id="my-table"
                              :items="records"
@@ -55,7 +55,7 @@ var gameScene = null;
 
 export default {
     components: {
-        VueMenu, 
+        VueMenu,
     },
     name: 'game',
     data () {

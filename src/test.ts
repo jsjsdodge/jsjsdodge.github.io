@@ -8,6 +8,8 @@ import App from './App.vue';
 import Game from './components/Game.vue';
 import Login from './components/VueLogin.vue';
 import Terms from './components/Terms.vue';
+import LeaderBoard from './components/leader-board.vue';
+import Profile from './components/profile.vue';
 import BootstrapVue from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
@@ -15,6 +17,7 @@ import VueDraggable from "vue-draggable";
 import VueMeta from 'vue-meta'
 import { LoaderPlugin } from 'vue-google-login';
 
+import { store } from "./store.ts";
 Vue.use(Router)
 Vue.use(VueDraggable)
 Vue.use(BootstrapVue)
@@ -31,12 +34,15 @@ var router = new Router({
         { path: '/', component: Game },
         { path: '/login', component: Login },
         { path: '/terms', component: Terms },
+        { path: '/leaderboard', component: LeaderBoard },
+        { path: '/profile', component: Profile },
     ]
 })
 
 /* eslint-disable no-new */
 new Vue({
     el: '#app',
-    render: h => h(App),
+    store:store,
+    render: h => h(App), 
     router
 });
