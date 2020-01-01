@@ -22,7 +22,7 @@
                         v-model="currentPage"
                         :total-rows="rows"
                         :per-page="perPage"
-                        aria-controls="my-table"
+                        aria-controls="my-table" 
                         ></b-pagination>
                     <p class="mt-3">Current Page: {{ currentPage }}</p>
                 </b-col>
@@ -34,6 +34,21 @@
         <img src="../assets/rain.png" />
         <p> {{ message }} </p>
         <h1>{{ msg }}</h1>
+        <b-card
+            title="Card Title"
+            img-src="https://picsum.photos/600/300/?image=25"
+            img-alt="Image"
+            img-top
+            tag="article"
+            style="max-width: 20rem;"
+            class="mb-2"
+            >
+            <b-card-text>
+                Some quick example text to build on the card title and make up the bulk of the card's content.
+            </b-card-text>
+
+            <b-button href="#" variant="primary">Go somewhere</b-button>
+        </b-card>
 
         <footer><address>서울특별시 강서구 내발산동</address></footer> 
 
@@ -128,7 +143,8 @@ export default {
         viewReplay: function(data) {
             console.log("view replay!!", data);
             //1332 frames
-            const buffer1 = Buffer.from('eJztm71uwzAMhN9Fs4dmyJK5eYKORbf+BSjSoE3QofC7Fy3SwYkjSw4lHqkDNHy9IVYomibP6Xe4W69vw2q5WC5uurDZ7g77z7C6/+67siu8PT3vw2rhBw87WSh+Ah+bl9f/zUvx3+a7cwk/HFxcKis8vn9tj8lOHOCwkFQTL3HsE4hlYk6WfRBTqiSdVvnsVrIr2VwSQOD8lM0rJhAtaMlKHOY8KrQYtZ2KL4jQ1QyvUhPuT9TciSgOihI1atTEtEZQMbynz3PtUCQEyDAC3mKTGi4CzB9eFUI4K48Y2d0yzLAfsw4wvq6tQrAA4RBTApYAuFf1m3SvDscQSekswVUtUFiXbXQBzKNZ/ibi6fgTDSPEoE+/rrXjakaj7UQFdGRH+8pFFMNoP8O0IGuB7Ll+EEol7u9f+F0OGAps0UzoqZlNUxlE8KSidqvU3VS7hsA5I95FMrk1rvGOJAuAxk00xevwSmX23UK4otCUKnqtcY1nCF/jG2PA/r4tkVhxVsfxmKileG/p6/osmb4EQL1Ojcb4gAB43tSANSJxGlvI2ARbIFaOy7QwGN/bk2IatMfxRiUyPkMkiiEJmWm7zEOAt/W6O9HJkb5IHyh7Odetu13spx2d7E+rWqqPF+/GxOYRYNwRH5KSfxkxSG12dpDSbIgsqftGFyCOh5J5iRzl3sL/CoH/PBCgX2jvh5ix/lso+S4tscQlSiHSkO1Mw0WkKHnRiA35xv5Esl0GTCdA0RNDGASUIlKyg9AL+s1MqVMpC4DcAZ8uQxxH38RpiA/9D/ZTvWM=', 'base64');
+            // const buffer1 = Buffer.from('eJztm71uwzAMhN9Fs4dmyJK5eYKORbf+BSjSoE3QofC7Fy3SwYkjSw4lHqkDNHy9IVYomibP6Xe4W69vw2q5WC5uurDZ7g77z7C6/+67siu8PT3vw2rhBw87WSh+Ah+bl9f/zUvx3+a7cwk/HFxcKis8vn9tj8lOHOCwkFQTL3HsE4hlYk6WfRBTqiSdVvnsVrIr2VwSQOD8lM0rJhAtaMlKHOY8KrQYtZ2KL4jQ1QyvUhPuT9TciSgOihI1atTEtEZQMbynz3PtUCQEyDAC3mKTGi4CzB9eFUI4K48Y2d0yzLAfsw4wvq6tQrAA4RBTApYAuFf1m3SvDscQSekswVUtUFiXbXQBzKNZ/ibi6fgTDSPEoE+/rrXjakaj7UQFdGRH+8pFFMNoP8O0IGuB7Ll+EEol7u9f+F0OGAps0UzoqZlNUxlE8KSidqvU3VS7hsA5I95FMrk1rvGOJAuAxk00xevwSmX23UK4otCUKnqtcY1nCF/jG2PA/r4tkVhxVsfxmKileG/p6/osmb4EQL1Ojcb4gAB43tSANSJxGlvI2ARbIFaOy7QwGN/bk2IatMfxRiUyPkMkiiEJmWm7zEOAt/W6O9HJkb5IHyh7Odetu13spx2d7E+rWqqPF+/GxOYRYNwRH5KSfxkxSG12dpDSbIgsqftGFyCOh5J5iRzl3sL/CoH/PBCgX2jvh5ix/lso+S4tscQlSiHSkO1Mw0WkKHnRiA35xv5Esl0GTCdA0RNDGASUIlKyg9AL+s1MqVMpC4DcAZ8uQxxH38RpiA/9D/ZTvWM=', 'base64');
+            const buffer1 = Buffer.from(data, 'base64');
 
             zlib.unzip(buffer1, (err, buffer) => {
                 if (!err) {

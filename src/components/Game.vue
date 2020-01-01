@@ -4,7 +4,7 @@
         <b-container class="bv-example-row" fluid> 
             <b-row>
                 <b-col cols="8">
-                    <div id="phaser-example"></div>
+                    <div id="phaser-example" style="display:block"></div>
                 </b-col>
                 <b-col cols="2"> 
                     <b-table striped hover
@@ -12,11 +12,9 @@
                              :items="records"
                              :per-page="perPage"
                              :current-page="currentPage"
+                             :fields="fields"
                              small
                              >
-                             <template v-slot:cell(replay_data)="data">
-                                 <button v-on:click="viewReplay(data.value)">VIEW REPLAY</button>
-                             </template>
                     </b-table>
                     <b-pagination
                         v-model="currentPage"
@@ -73,6 +71,7 @@ export default {
                 {some: "abc2"},
                 {some: "abcs3"},
             ],
+            fields: ['name', 'score'],
             records: [{"name":"han", "score":123}],
             ksoo: 'kso1233123o',
             perPage: 10,
@@ -101,7 +100,7 @@ export default {
     {
         updateRecords: function() {
             var thiz = this;
-            thiz.records = [{"name":"han", "score":124443, "replay_data":"etc"}];
+            // thiz.records = [{"name":"han", "score":124443, "replay_data":"etc"}];
             var updater = function() {
                 var base_url = "https://api.emalron.com:8443/jdodge/service";
                 // var base_url = "https://api.ipify.org?format=json";

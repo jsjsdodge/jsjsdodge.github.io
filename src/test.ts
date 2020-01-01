@@ -11,8 +11,6 @@ import Terms from './components/Terms.vue';
 import LeaderBoard from './components/leader-board.vue';
 import Profile from './components/profile.vue';
 import BootstrapVue from 'bootstrap-vue'
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
 import VueDraggable from "vue-draggable";
 import VueMeta from 'vue-meta'
 import { LoaderPlugin } from 'vue-google-login';

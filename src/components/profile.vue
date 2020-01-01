@@ -10,15 +10,15 @@
                 <b-form-input
                     id="input-1"
                     v-model="$store.state.userid"
-                    type="email"
                     required
                     ></b-form-input>
-            </b-form-group>
+                </b-form-group>
 
                 <b-form-group id="input-group-2" label="Your Name:" label-for="input-2">
                     <b-form-input
                         id="input-2"
-                        v-model="$store.state.username"
+                        v-model="username"
+                        :value="world"
                         required
                         placeholder="Enter name"
                         ></b-form-input>
@@ -40,6 +40,7 @@ import {GameScene, EmptyScene } from "../Ksoogame.ts";
 import axios from 'axios';
 import * as zlib from 'browserify-zlib'; 
 import { EventBus } from "@/event-bus";
+import * as global from '../consts'
 
 var gameScene = null;
 
@@ -53,21 +54,44 @@ export default {
             foods: [{ text: 'Select One', value: null }, 'Carrots', 'Beans', 'Tomatoes', 'Corn'],
             msg: 'Welcome to Your Vue.js App',
             message: '이 페이지는 ' + new Date() + ' 에 로드 되었습니다' ,
+            username: "TTT"
         }
     },
     created() {
-        console.log(this.$store.state.counter);
+        // this.username = this.$store.state.username;
     },
     computed: {
+        world: function() {
+            console.log("world:", this.$store.state.username);
+            this.username = this.$store.state.username;
+            return this.$store.state.username;
+        }
+    },
+    beforeCreate() {
+        console.log(this.$store.state);
+        console.log(this.$store.state);
     },
     mounted () {
         // new EmptyScene('Game'); 
+        console.log(this.$store.state.userid);
     },
     methods:
     {
         onSubmit(evt) {
+            console.log("submot!!");
+            var base_url = global.APIURL + "/jdodge/service";
+            var req = {
+                id: this.$store.state.userid,
+                name: this.username, // this.$store.state.username ,
+                lang: "ko",
+                cmd: "alterUserInfo"
+            };
+            axios.post(base_url, req).then( response => { 
+                console.log("alteruser");
+            } ) // SUCCESS
+                .catch( response => { console.log(response); } ); // ERROR
+            // alert(JSON.stringify(this.form))
             evt.preventDefault()
-            alert(JSON.stringify(this.form))
         },
         onReset(evt) {
             evt.preventDefault()
