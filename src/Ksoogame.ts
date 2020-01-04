@@ -13,39 +13,9 @@ import axios from 'axios'
 
 import * as zlib from 'browserify-zlib';
 import {XorShift32} from './XorShift32.js';
-import * as mathutil from './mathutil';
+import * as mathutil from './mathutil'; 
 
-
-
-//
-
-// for(var i=0; i<100; i++) {
-//     console.log(rng1.randfloat());
-// }
-//
-//
-
-
-// var playerSprite = null;
-
-var bulletGenInterval = 15;
-
-// const wall = require('./assets/wall.png');
-// const tail = require('./assets/tail_bullet.png');
-// const player = require('./assets/player.png');
-// import wall from './assets/wall.png'
-// import tail from '.assets/tail_bullet.png'
-// import player from './assets/player.png'
-
-
-
-// export const haha:number = 3;
-
-
-
-
-
-
+var bulletGenInterval = 15; 
 enum GameStep {
     before,
     playing,
@@ -69,8 +39,7 @@ export class GameScene extends Phaser.Scene {
     userId: string = 'emptyid';
     userName: string = 'emptyname';
 
-    replayData: any = null;
-
+    replayData: any = null; 
     public constructor(some:string) {
         super(some); // game, 0, 0, arrow);
 
@@ -148,15 +117,16 @@ export class GameScene extends Phaser.Scene {
 
         this.createBullet();
 
-        this.readyText = new ReadyGoText(this); 
-        this.add.existing(this.readyText);
+
+        if(this.replayData == null) {
+            this.readyText = new ReadyGoText(this); 
+            this.add.existing(this.readyText);
+        } 
         // bmpText.input.enabled = true;
 
         for(let i=0; i<10; i++) {
             this.createBullet();
         }
-
-        // this.tweens.pauseAll();
         this.boundaryTween = this.tweens.add({
             targets: this,
             loop: 0,
@@ -176,7 +146,6 @@ export class GameScene extends Phaser.Scene {
         });
         this.boundaryTween.setTimeScale(16.6); 
         this.boundaryTween.pause(); 
-        // this.tweens.pauseAll();
     }
     public create() {
         console.log("phaser: create()");
@@ -207,7 +176,8 @@ export class GameScene extends Phaser.Scene {
         // console.log(this.boundaryRadius);
         this.circleImage.setScale(1000 / 1500.0);
         // this.circleImage.setScale(this.boundaryRadius / 1000); 
-        if(this.readyText.isFinish()) {
+        // console.log(this.replayData != null, this.readyText != null);
+        if(this.replayData != null || this.readyText != null && this.readyText.isFinish()) {
             if(this.step == GameStep.playing) {
                 if(this.boundaryTween.isPaused()) {
                     this.boundaryTween.play();
@@ -233,49 +203,31 @@ export class GameScene extends Phaser.Scene {
                     console.log("last boundary: ", this.boundaryRadius);
                     const input = JSON.stringify(this.gameRecords);
                     console.log("game frames: ", this.gameRecords.inputs.length);
-                    zlib.deflate(input, (err, buffer) => {
-                        if (!err) {
-                            console.log(buffer.toString('base64'));
-                            var rec = buffer.toString('base64');
-                            var userEntity = {};
-                            userEntity = JSON.parse(sessionStorage.getItem('jdodge_auth'));
-                            console.log(userEntity);
-                            var thiz = this; 
-                            var base_url = global.APIURL + "/jdodge/service";
-                            // var base_url = "https://api.ipify.org?format=json";
-
-                            
-                                                const buffer1 = Buffer.from(rec, 'base64');
-                                                zlib.unzip(buffer1, (err, buffer) => {
-                                                    if (!err) {
-                                                        console.log("원본: ", buffer.toString());
-                                                    } else {
-                                                        // handle error
-                                                    }
-                                                });
-
-
-                            // const url = "https://hooks.slack.com/services/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";
-                            var req = {
+                    if(this.replayData == null) {
+                        zlib.deflate(input, (err, buffer) => {
+                            if (!err) {
+                                console.log(buffer.toString('base64'));
+                                var rec = buffer.toString('base64');
+                                var userEntity = {};
+                                userEntity = JSON.parse(sessionStorage.getItem('jdodge_auth'));
+                                console.log(userEntity);
+                                var thiz = this; 
+                                var base_url = global.APIURL + "/jdodge/service";
+                                var req = {
                                     cmd: "addRank",
                                     id: this.userId,
                                     score: "" + thiz.frameNumber,
                                     replay_data: rec,
                                 };
-                            axios.defaults.withCredentials = false;
-
-                            // axios.post(url, JSON.stringify({text: JSON.stringify(req)}))
-                            //     .then( response => { } )
-                            //     .catch( response => { console.log(response); } );
-
-                            axios.post(base_url, req).then( response => { 
-                            } ) // SUCCESS
-                                .catch( response => { console.log(response); } ); // ERROR
-                        } else {
-                            // handle error
-                        }
-                    });
-
+                                axios.defaults.withCredentials = false;
+                                axios.post(base_url, req).then( response => { 
+                                } ) // SUCCESS
+                                    .catch( response => { console.log(response); } ); // ERROR
+                            } else {
+                                // handle error
+                            }
+                        });
+                    } 
                 }
                 // collisionDetect(); 
                 this.generator();
