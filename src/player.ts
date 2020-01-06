@@ -13,6 +13,7 @@ export class Player extends Phaser.GameObjects.Image {
     public constructor(scene:Phaser.Scene, texture:string) {
         super(scene, 0, 0, texture);
         scene.add.existing(this);
+        console.log("Player cstr");
         this.upKey = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
         this.downKey = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
         this.leftKey = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
@@ -26,7 +27,7 @@ export class Player extends Phaser.GameObjects.Image {
     public update(gameRecords:any) {
         // for(let aa=0; aa<=10; aa++) {
         // }
-        // console.log("hh", this.recoredInput);
+        // console.log("hh", this.recoredInput != null);
         if(this.recoredInput != null) {
             // console.log(this.frameNumber, ": " + this.recoredInput.inputs[this.frameNumber]);
             if(this.recoredInput.inputs.length > this.frameNumber) {

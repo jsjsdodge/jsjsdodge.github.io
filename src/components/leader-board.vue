@@ -66,7 +66,6 @@ import axios from 'axios';
 import * as zlib from 'browserify-zlib'; 
 import { EventBus } from "@/event-bus";
 
-var gameScene = null;
 
 export default {
     components: {
@@ -92,13 +91,16 @@ export default {
             ksoo: 'kso1233123o',
             perPage: 10,
             currentPage: 1,
+            gameScene: null,
         }
     },
     created() {
+
+        var thiz = this;
         EventBus.$on("userinfo", userinfo => {
             console.log("ui: ", userinfo);
-            gameScene.userId = userinfo.Id;
-            gameScene.userName = userinfo.Name;
+            thiz.gameScene.userId = userinfo.Id;
+            thiz.gameScene.userName = userinfo.Name;
             // this.receivedClickCount = clickedCount;
         });
     },
@@ -109,27 +111,32 @@ export default {
     },
     mounted () {
         // new EmptyScene('Game'); 
-        gameScene = new GameScene('tt'); 
+        this.gameScene = new GameScene('tt'); 
         this.updateRecords();
+    },
+    destroyed() {
+        console.log("game.vue destroyed");
+        this.gameScene.game.destroy(); 
     },
     methods:
     {
         updateRecords: function() {
             var thiz = this;
+            console.log(this.$route.params.id, this.$route.params.monthly, this.$route.params.year);
+            console.log(this.$route.params);
             thiz.records = [{"name":"han", "score":124443, "replay_data":"etc"}];
             var updater = function() {
-                var base_url = "https://api.emalron.com:8443/jdodge/service";
+                var base_url = "https://api.emalron.com:8081/jdodge/service";
+                // var base_url = "http://127.0.0.1:8080/jdodge/service";
                 // var base_url = "https://api.ipify.org?format=json";
                 axios.post(base_url, {
                     cmd: "showAllRanks",
-                }
-
-                )
-                    .then( response => { 
+                    id: thiz.$route.params.id
+                } ) .then( response => { 
                         // var json = JSON.parse(response.data);
                         console.log(response.data.message); 
 
-                        if(response.data.result && response.data.result >= 0) {
+                        if(response.data.result >= 0) {
                             thiz.records = response.data.message;
                         } else {
                         }
@@ -146,12 +153,13 @@ export default {
             // const buffer1 = Buffer.from('eJztm71uwzAMhN9Fs4dmyJK5eYKORbf+BSjSoE3QofC7Fy3SwYkjSw4lHqkDNHy9IVYomibP6Xe4W69vw2q5WC5uurDZ7g77z7C6/+67siu8PT3vw2rhBw87WSh+Ah+bl9f/zUvx3+a7cwk/HFxcKis8vn9tj8lOHOCwkFQTL3HsE4hlYk6WfRBTqiSdVvnsVrIr2VwSQOD8lM0rJhAtaMlKHOY8KrQYtZ2KL4jQ1QyvUhPuT9TciSgOihI1atTEtEZQMbynz3PtUCQEyDAC3mKTGi4CzB9eFUI4K48Y2d0yzLAfsw4wvq6tQrAA4RBTApYAuFf1m3SvDscQSekswVUtUFiXbXQBzKNZ/ibi6fgTDSPEoE+/rrXjakaj7UQFdGRH+8pFFMNoP8O0IGuB7Ll+EEol7u9f+F0OGAps0UzoqZlNUxlE8KSidqvU3VS7hsA5I95FMrk1rvGOJAuAxk00xevwSmX23UK4otCUKnqtcY1nCF/jG2PA/r4tkVhxVsfxmKileG/p6/osmb4EQL1Ojcb4gAB43tSANSJxGlvI2ARbIFaOy7QwGN/bk2IatMfxRiUyPkMkiiEJmWm7zEOAt/W6O9HJkb5IHyh7Odetu13spx2d7E+rWqqPF+/GxOYRYNwRH5KSfxkxSG12dpDSbIgsqftGFyCOh5J5iRzl3sL/CoH/PBCgX2jvh5ix/lso+S4tscQlSiHSkO1Mw0WkKHnRiA35xv5Esl0GTCdA0RNDGASUIlKyg9AL+s1MqVMpC4DcAZ8uQxxH38RpiA/9D/ZTvWM=', 'base64');
             const buffer1 = Buffer.from(data, 'base64');
 
+            var thiz = this;
             zlib.unzip(buffer1, (err, buffer) => {
                 if (!err) {
                     console.log("원본: ", buffer.toString());
                     var obj = JSON.parse(buffer.toString());
-                    gameScene.scene.restart();
-                    gameScene.replayData = JSON.parse(buffer.toString());
+                    thiz.gameScene.scene.restart();
+                    thiz.gameScene.replayData = JSON.parse(buffer.toString());
                     console.log("replay set~~");
                 } else {
                     // handle error

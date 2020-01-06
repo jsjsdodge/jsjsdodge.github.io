@@ -19,13 +19,13 @@ export class ReadyGoText extends Phaser.GameObjects.Container {
 
     state: ReadyState = ReadyState._1;
     readyText: any;
-    public constructor(scene: Phaser.Scene) {
+    public constructor(scene: Phaser.Scene, title: string, desc: string, endCallback?: ()=>void) {
         super(scene); 
         // this.readyText = scene.add.text(global.WIDTH/2, global.HEIGHT/2, 'READY', {align:'center', fontSize: 100}); 
         // this.readyText.setAlign('center');
         // this.readyText.setOrigin(0.5);
-        let bmpText:Phaser.GameObjects.BitmapText = scene.add.bitmapText(global.WIDTH/2, global.HEIGHT/2, 'carrier_command','READY');
-        let discText:Phaser.GameObjects.BitmapText = scene.add.bitmapText(global.WIDTH/2, global.HEIGHT/2 + 125, 'carrier_command','Press enter key to start.');
+        let bmpText:Phaser.GameObjects.BitmapText = scene.add.bitmapText(global.WIDTH/2, global.HEIGHT/2, 'carrier_command', title);
+        let discText:Phaser.GameObjects.BitmapText = scene.add.bitmapText(global.WIDTH/2, global.HEIGHT/2 + 125, 'carrier_command', desc);
         this.readyText = bmpText;
         bmpText.setOrigin(0.5);
         bmpText.setCenterAlign();
@@ -79,6 +79,9 @@ export class ReadyGoText extends Phaser.GameObjects.Container {
                             // global.topScene.scene.remove('ksoo');
                             // thiz.scene.scene.remove('ksoo');
                             thiz.state = ReadyState._4;
+                            if(endCallback) {
+                                endCallback();
+                            }
                             // thiz.destroy(true);
                         },
                         onLoopParams: [],

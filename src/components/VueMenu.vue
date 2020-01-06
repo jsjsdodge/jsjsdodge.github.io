@@ -3,14 +3,16 @@
 <div>
     <b-navbar toggleable="lg">
         <b-navbar-brand href="#/">JDODGE</b-navbar-brand>
+        <b-navbar-brand href="#/game">PLAY</b-navbar-brand>
 
         <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
         <b-collapse id="nav-collapse" is-nav>
             <b-navbar-nav>
-                <b-nav-item href="#/leaderboard">Leader Board</b-nav-item>
-
-                <b-nav-item href="#" disabled>Disabled</b-nav-item>
+                <b-nav-item-dropdown text="Leader Board" href="#/leaderboard/top100" right>
+                    <b-dropdown-item href="#/leaderboard/top100">TOP100</b-dropdown-item>
+                    <b-dropdown-item href="#/leaderboard/monthly">월간</b-dropdown-item>
+                </b-nav-item-dropdown>
                 <b-nav-item href="#"><button v-on:click="testButton">test</button></b-nav-item>
             </b-navbar-nav>
             <b-navbar-nav class="ml-auto">
@@ -51,12 +53,6 @@
             </b-navbar-nav>
         </b-collapse>
     </b-navbar>
-    <b-row>
-        <b-col cols="12">
-            {{ topTitle }} 
-            {{ world }}
-        </b-col>
-    </b-row>
 </div>
 
 </template>
@@ -84,10 +80,6 @@ export default {
         };
     },
     computed: {
-        world: function() {
-            console.log("world:", this.$store.state.userid);
-            return this.$store.state.userid;
-        }
     },
     methods: {
         onGroupsChange(e) {

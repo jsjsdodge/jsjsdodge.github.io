@@ -31,9 +31,12 @@ const NotFound = { template: '<div>Not Found</div>'}
 var router = new Router({
     routes: [
         { path: '/', component: Game },
+        { path: '/game', component: Game },
         { path: '/login', component: Login },
         { path: '/terms', component: Terms },
-        { path: '/leaderboard', component: LeaderBoard },
+        { path: '/leaderboard/:category', component: LeaderBoard },
+        { path: '/leaderboard/:category/:id', component: LeaderBoard },
+        { path: '/leaderboard/:category/:year/:month', component: LeaderBoard },
         { path: '/profile', component: Profile },
     ]
 })

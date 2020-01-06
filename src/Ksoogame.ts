@@ -36,10 +36,11 @@ export class GameScene extends Phaser.Scene {
     randomObject : any = new XorShift32(); 
     frameNumber : number = 0;
 
-    userId: string = 'emptyid';
+    jwt: string = 'emptyjwt';
     userName: string = 'emptyname';
 
     replayData: any = null; 
+    game: Phaser.Game;
     public constructor(some:string) {
         super(some); // game, 0, 0, arrow);
 
@@ -58,7 +59,7 @@ export class GameScene extends Phaser.Scene {
             parent: 'phaser-example',
             scene: this
         };
-        var game = new Phaser.Game(config);
+        this.game = new Phaser.Game(config);
         // console.log("phaser: ctr2");
         // var config = {
         //     type: Phaser.AUTO,
@@ -119,7 +120,7 @@ export class GameScene extends Phaser.Scene {
 
 
         if(this.replayData == null) {
-            this.readyText = new ReadyGoText(this); 
+            this.readyText = new ReadyGoText(this, 'READY', 'PRESS ENTER TO START'); 
             this.add.existing(this.readyText);
         } 
         // bmpText.input.enabled = true;
@@ -162,6 +163,44 @@ export class GameScene extends Phaser.Scene {
         // this.playerSprite.x = 200;
     }
 
+    private checkPlayerDie() {
+        var thiz = this;
+        if(this.playerSprite.live == false) { 
+            this.step = GameStep.die;
+            this.boundaryTween.pause();
+            console.log("last boundary: ", this.boundaryRadius);
+            const input = JSON.stringify(this.gameRecords);
+            console.log("game frames: ", this.gameRecords.inputs.length);
+            if(this.replayData == null) {
+                zlib.deflate(input, (err, buffer) => {
+                    if (!err) {
+                        console.log(buffer.toString('base64'));
+                        var rec = buffer.toString('base64');
+                        var userEntity = {};
+                        userEntity = JSON.parse(sessionStorage.getItem('jdodge_auth'));
+                        console.log(userEntity);
+                        var base_url = global.APIURL + "/jdodge/service";
+                        var req = {
+                            cmd: "addRank",
+                            jwt: this.jwt,
+                            score: "" + thiz.frameNumber,
+                            replay_data: rec,
+                        };
+                        axios.defaults.withCredentials = false;
+                        axios.post(base_url, req).then( response => { 
+                            var endText = new ReadyGoText(thiz, 'GAME OVER', 'PRESS ENTER TO RETRY', function() {
+                                thiz.scene.restart();
+                            }); 
+                            thiz.add.existing(endText);
+                        } ) // SUCCESS
+                            .catch( response => { console.log(response); } ); // ERROR
+                    } else {
+                        // handle error
+                    }
+                });
+            } 
+        }
+    }
     // circle : any;
     public update() {
         var d = new Date();
@@ -177,7 +216,8 @@ export class GameScene extends Phaser.Scene {
         this.circleImage.setScale(1000 / 1500.0);
         // this.circleImage.setScale(this.boundaryRadius / 1000); 
         // console.log(this.replayData != null, this.readyText != null);
-        if(this.replayData != null || this.readyText != null && this.readyText.isFinish()) {
+        let isPlayingGame = this.replayData != null || this.readyText != null && this.readyText.isFinish();
+        if(isPlayingGame) {
             if(this.step == GameStep.playing) {
                 if(this.boundaryTween.isPaused()) {
                     this.boundaryTween.play();
@@ -195,40 +235,8 @@ export class GameScene extends Phaser.Scene {
                     this.playerSprite.live = false;
                     console.log("last boundary: ", this.boundaryRadius);
                 }
-
-                if(this.playerSprite.live == false) { 
-                    this.step = GameStep.die;
-                    this.boundaryTween.pause();
-                    console.log("last boundary: ", this.boundaryRadius);
-                    const input = JSON.stringify(this.gameRecords);
-                    console.log("game frames: ", this.gameRecords.inputs.length);
-                    if(this.replayData == null) {
-                        zlib.deflate(input, (err, buffer) => {
-                            if (!err) {
-                                console.log(buffer.toString('base64'));
-                                var rec = buffer.toString('base64');
-                                var userEntity = {};
-                                userEntity = JSON.parse(sessionStorage.getItem('jdodge_auth'));
-                                console.log(userEntity);
-                                var thiz = this; 
-                                var base_url = global.APIURL + "/jdodge/service";
-                                var req = {
-                                    cmd: "addRank",
-                                    id: this.userId,
-                                    score: "" + thiz.frameNumber,
-                                    replay_data: rec,
-                                };
-
-                                axios.post(base_url, req).then( response => { 
-                                } ).catch( response => { console.log(response); } ); // ERROR
-                            } else {
-                                // handle error
-                            }
-                        });
-
-                    }
-                    // collisionDetect(); 
-                } 
+                // collisionDetect(); 
+                this.checkPlayerDie();
                 this.generator();
             } else if(this.step == GameStep.die) {
 
