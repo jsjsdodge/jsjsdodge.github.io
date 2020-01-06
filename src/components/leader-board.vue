@@ -65,6 +65,7 @@ import {GameScene, EmptyScene } from "../Ksoogame.ts";
 import axios from 'axios';
 import * as zlib from 'browserify-zlib'; 
 import { EventBus } from "@/event-bus";
+import * as global from '@/consts.ts';
 
 
 export default {
@@ -99,7 +100,7 @@ export default {
         var thiz = this;
         EventBus.$on("userinfo", userinfo => {
             console.log("ui: ", userinfo);
-            thiz.gameScene.userId = userinfo.Id;
+            thiz.gameScene.jwt = userinfo.Jwt;
             thiz.gameScene.userName = userinfo.Name;
             // this.receivedClickCount = clickedCount;
         });
@@ -126,7 +127,7 @@ export default {
             console.log(this.$route.params);
             thiz.records = [{"name":"han", "score":124443, "replay_data":"etc"}];
             var updater = function() {
-                var base_url = "https://api.emalron.com:8081/jdodge/service";
+                var base_url = global.APIURL + "/jdodge/service";
                 // var base_url = "http://127.0.0.1:8080/jdodge/service";
                 // var base_url = "https://api.ipify.org?format=json";
                 axios.post(base_url, {

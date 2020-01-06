@@ -107,8 +107,12 @@ export default {
             this.$store.state.counter++;
         },
         doLogin(memberid, name) {
+            var myUserEntity = {};
+            myUserEntity.Id = memberid;
+            myUserEntity.Name = name;
             this.$store.state.username = name;
             this.$store.state.userid = memberid;
+            EventBus.$emit("userinfo", myUserEntity);
 
             var base_url = global.APIURL + "/jdodge/service";
             // var base_url = "https://api.ipify.org?format=json";
@@ -122,14 +126,8 @@ export default {
                 .then( response => { 
                     // var json = JSON.parse(response.data);
                     console.log(response.data); 
-                    thiz.$store.state.jwt = response.data.jwt;
-                    thiz.$store.state.username = 'wwww'; // response.data.message;
-                    // thiz.$store.state.username = thiz.$store.state.username.replace('Welcome, ', '');
-
-                    var myUserEntity = {};
-                    myUserEntity.Jwt = thiz.$store.state.jwt;
-                    myUserEntity.Name = thiz.$store.state.username;
-                    EventBus.$emit("userinfo", myUserEntity);
+                    thiz.$store.state.username = response.data.message;
+                    thiz.$store.state.username = thiz.$store.state.username.replace('Welcome, ', '');
                 } ) // SUCCESS
                 .catch( response => { console.log(response); } ); // ERROR 
         }

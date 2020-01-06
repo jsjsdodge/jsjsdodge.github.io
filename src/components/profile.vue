@@ -97,7 +97,7 @@ export default {
             console.log("submot!!");
             var base_url = global.APIURL + "/jdodge/service";
             var req = {
-                id: this.$store.state.userid,
+                jwt: this.$store.state.jwt,
                 name: this.username, // this.$store.state.username ,
                 lang: "ko",
                 cmd: "alterUserInfo"

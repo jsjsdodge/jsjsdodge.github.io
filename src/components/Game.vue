@@ -79,7 +79,7 @@ export default {
         var thiz = this;
         EventBus.$on("userinfo", userinfo => {
             console.log("ui: ", userinfo);
-            thiz.gameScene.userId = userinfo.Id;
+            thiz.gameScene.jwt = userinfo.Jwt;
             thiz.gameScene.userName = userinfo.Name;
             // this.receivedClickCount = clickedCount;
         });
@@ -107,7 +107,7 @@ export default {
             var thiz = this;
             // thiz.records = [{"name":"han", "score":124443, "replay_data":"etc"}];
             var updater = function() {
-                var base_url = "https://api.emalron.com:8443/jdodge/service";
+                var base_url = global.APIURL + "/jdodge/service";
                 // var base_url = "https://api.ipify.org?format=json";
                 axios.post(base_url, {
                     cmd: "showAllRanks",
