@@ -262,7 +262,6 @@ export class GameScene extends Phaser.Scene {
                                     score: "" + thiz.frameNumber,
                                     replay_data: rec,
                                 };
-                            axios.defaults.withCredentials = false;
 
                             // axios.post(url, JSON.stringify({text: JSON.stringify(req)}))
                             //     .then( response => { } )

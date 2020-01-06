@@ -125,6 +125,7 @@ export default {
             var base_url = global.APIURL + "/jdodge/service";
             // var base_url = "https://api.ipify.org?format=json";
             var thiz = this;
+            axios.defaults.withCredentials = true;
             axios.post(base_url,
                        {
                            cmd: "login",
