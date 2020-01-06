@@ -27,6 +27,7 @@ Vue.config.productionTip = false;
 const Home = { template: '<div>Home</div>'}
 const Login2 = { template: '<div>LLLLLLLLLLLL</div>'}
 const NotFound = { template: '<div>Not Found</div>'}
+
 var router = new Router({
     routes: [
         { path: '/', component: Game },
@@ -43,4 +44,5 @@ new Vue({
     store:store,
     render: h => h(App), 
     router
-});
+}); 
+

@@ -46,7 +46,7 @@ export class Player extends Phaser.GameObjects.Image {
                 }
             } else {
                 // window.alert("exceed");
-                console.log(this.recoredInput.inputs.length, this.frameNumber);
+                // console.log(this.recoredInput.inputs.length, this.frameNumber);
             }
             // for(let i=0; i<this.recoredInput.inputs.length; i++) {
             // }
