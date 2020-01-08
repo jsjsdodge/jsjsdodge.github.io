@@ -44,6 +44,7 @@ import {GameScene, EmptyScene } from "../Ksoogame.ts";
 import axios from 'axios';
 import * as zlib from 'browserify-zlib'; 
 import { EventBus } from "@/event-bus";
+import * as global from "@/consts.ts";
 
 // var gameScene = null;
 
@@ -98,7 +99,8 @@ export default {
     mounted () {
         // new EmptyScene('Game'); 
         console.log("before gameScene: ", this.gameScene);
-        this.gameScene = new GameScene('tt'); 
+        
+        this.gameScene = new GameScene('tt', this.$store.state); 
         // gameScene = new GameScene('tt'); 
     },
     methods:
@@ -107,8 +109,8 @@ export default {
             var thiz = this;
             // thiz.records = [{"name":"han", "score":124443, "replay_data":"etc"}];
             var updater = function() {
-                var base_url = global.APIURL + "/jdodge/service";
-                // var base_url = "https://api.ipify.org?format=json";
+                var base_url = global.APIURL + "/jdodge/service"; // var base_url = "https://api.ipify.org?format=json";
+                console.log("ssss", base_url);
                 axios.post(base_url, {
                     cmd: "showAllRanks",
                 }
@@ -116,15 +118,11 @@ export default {
                 )
                     .then( response => { 
                         // var json = JSON.parse(response.data);
-                        console.log(response.data.message); 
-
-                        if(response.data.result && response.data.result >= 0) {
-                            thiz.records = response.data.message;
+                        if(response.data.result >= 0) {
+                            thiz.records = response.data.data;
                         } else {
-                        }
-
-                    } ) // SUCCESS
-                    .catch( response => { console.log(response); } ); // ERROR
+                        } 
+                    } ).catch( response => { console.log(response); } ); // ERROR
 
             };
             updater();

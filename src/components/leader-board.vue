@@ -135,10 +135,10 @@ export default {
                     id: thiz.$route.params.id
                 } ) .then( response => { 
                         // var json = JSON.parse(response.data);
-                        console.log(response.data.message); 
+                        console.log(response.data.data); 
 
                         if(response.data.result >= 0) {
-                            thiz.records = response.data.message;
+                            thiz.records = response.data.data;
                         } else {
                         }
 

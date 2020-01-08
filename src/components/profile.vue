@@ -14,28 +14,15 @@
                     <b-card-text>
                         개인정보를 수정하는 곳입니다.
                         <b-form @submit="onSubmit" @reset="onReset">
-                            <b-form-group
-                                id="input-group-1"
-                                label="Your ID"
-                                label-for="input-1"
-                                >
+                            <b-form-group id="input-group-2" label="Your Name:" label-for="input-2">
                                 <b-form-input
-                                    id="input-1"
-                                    v-model="$store.state.userid"
+                                    id="input-2"
+                                    v-model="username"
+                                    :value="world"
                                     required
+                                    placeholder="Enter name"
                                     ></b-form-input>
-                            </b-form-group>
-
-                                <b-form-group id="input-group-2" label="Your Name:" label-for="input-2">
-                                    <b-form-input
-                                        id="input-2"
-                                        v-model="username"
-                                        :value="world"
-                                        required
-                                        placeholder="Enter name"
-                                        ></b-form-input>
-                                </b-form-group> 
-
+                            </b-form-group> 
                     <b-button type="submit" variant="primary">Submit</b-button>
                         </b-form>
                     </b-card-text>
@@ -102,10 +89,16 @@ export default {
                 lang: "ko",
                 cmd: "alterUserInfo"
             };
+            var thiz = this;
             axios.post(base_url, req).then( response => { 
                 console.log("alteruser");
-            } ) // SUCCESS
-                .catch( response => { console.log(response); } ); // ERROR
+                thiz.$store.state.showMessage = true; 
+                thiz.$store.state.showMessageText = "닉네임 변경 성공!";
+            } ).catch( response => { 
+                console.log("[fail] alterUserInfo: ", response);
+                thiz.$store.state.showMessage = true; 
+                thiz.$store.state.showMessageText = "닉네임 변경이 실패했습니다.";
+            } ); // ERROR
             // alert(JSON.stringify(this.form))
             evt.preventDefault()
         },

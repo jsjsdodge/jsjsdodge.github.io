@@ -8,6 +8,8 @@ export const store = new Vuex.Store({
         counter: 0,
         username: "",
         userid: "",
-        jwt: ""
+        jwt: "",
+        showMessage: false,
+        showMessageText: ""
     }
 });

@@ -16,10 +16,6 @@
                 <b-nav-item href="#"><button v-on:click="testButton">test</button></b-nav-item>
             </b-navbar-nav>
             <b-navbar-nav class="ml-auto">
-                <b-nav-form>
-                    <b-form-input size="sm" class="mr-sm-2" placeholder="Search"></b-form-input>
-                    <b-button size="sm" class="my-2 my-sm-0" type="submit">Search</b-button>
-                </b-nav-form>
 
                 <b-nav-item-dropdown text="Lang" right>
                     <b-dropdown-item href="#">EN</b-dropdown-item>
@@ -31,13 +27,13 @@
                 <b-nav-item-dropdown right>
                     <!-- Using 'button-content' slot -->
 
-                    <template v-if="$store.state.userid != ''" v-slot:button-content >
-                        <em>{{ $store.state.username }}({{ $store.state.userid }}), Hi!</em>
+                    <template v-if="$store.state.jwt != ''" v-slot:button-content >
+                        <em>{{ $store.state.username }}, Hi!</em>
                     </template>
                     <template v-else v-slot:button-content >
                         <em>User</em>
                     </template>
-                    <template v-if="$store.state.userid  != ''">
+                    <template v-if="$store.state.jwt  != ''">
                         <b-dropdown-item href="#/profile">Profile</b-dropdown-item>
                         <b-dropdown-item href="#">
                             <GoogleLogin :params="params" :logoutButton=true :onSuccess="onLogout" :onFailure="onLogoutFail">Logout</GoogleLogin>
@@ -53,6 +49,9 @@
             </b-navbar-nav>
         </b-collapse>
     </b-navbar>
+    <b-alert v-model="$store.state.showMessage" variant="info" dismissible>
+        {{ $store.state.showMessageText }} 
+    </b-alert>
 </div>
 
 </template>
@@ -121,9 +120,9 @@ export default {
                        })
                 .then( response => { 
                     // var json = JSON.parse(response.data);
-                    console.log(response.data); 
-                    thiz.$store.state.jwt = response.data.jwt;
-                    thiz.$store.state.username = 'wwww'; // response.data.message;
+                    console.log("[result] login: ", response.data); 
+                    thiz.$store.state.jwt = response.data.data.jwt;
+                    thiz.$store.state.username = response.data.data.name;
                     // thiz.$store.state.username = thiz.$store.state.username.replace('Welcome, ', '');
 
                     var myUserEntity = {};
@@ -171,8 +170,8 @@ export default {
                     // myUserEntity.Name = "";
                     console.log("abc == false");
                     thiz.$store.state.username = "";
-                    thiz.$store.state.userid = "";
-                    EventBus.$emit("userinfo", {Id:thiz.$store.state.userid, Name: thiz.$store.state.username});
+                    thiz.$store.state.jwt = "";
+                    EventBus.$emit("userinfo", {Jwt:thiz.$store.state.jwt, Name: thiz.$store.state.username});
                 } else {
                     thiz.doLogin(basic.getId(), basic.getName());
                 }

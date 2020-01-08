@@ -41,8 +41,10 @@ export class GameScene extends Phaser.Scene {
 
     replayData: any = null; 
     game: Phaser.Game;
-    public constructor(some:string) {
+    mStore: any = null;
+    public constructor(some:string, store: any) {
         super(some); // game, 0, 0, arrow);
+        this.mStore = store;
 
         console.log("gamescene cstr");
         var config = {
@@ -188,12 +190,17 @@ export class GameScene extends Phaser.Scene {
                         };
                         axios.defaults.withCredentials = false;
                         axios.post(base_url, req).then( response => { 
+                            thiz.mStore.showMessage = true;
+                            thiz.mStore.showMessageText = "랭킹 등록이 성공했습니다.";
                             var endText = new ReadyGoText(thiz, 'GAME OVER', 'PRESS ENTER TO RETRY', function() {
                                 thiz.scene.restart();
                             }); 
                             thiz.add.existing(endText);
-                        } ) // SUCCESS
-                            .catch( response => { console.log(response); } ); // ERROR
+                        } ).catch( response => { 
+                            thiz.mStore.showMessage = true;
+                            thiz.mStore.showMessageText = "랭킹 등록이 실패했습니다.";
+                            console.log(response);
+                        } ); // ERROR
                     } else {
                         // handle error
                     }
